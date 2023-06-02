@@ -2,11 +2,18 @@
 
 namespace Database\Seeders;
 
-use App\Models\City;
+use App\Repositories\CityRepository;
 use Illuminate\Database\Seeder;
 
 class CitySeeder extends Seeder
 {
+    private CityRepository $cityRepository;
+
+    public function __construct()
+    {
+        $this->cityRepository = new CityRepository();
+    }
+
     /**
      * Run the database seeds.
      *
@@ -20,8 +27,8 @@ class CitySeeder extends Seeder
             ['name' => 'Szeged', 'latitude' => 46.253620, 'longitude' => 20.146130],
         ];
 
-        foreach($cities as $city) {
-            City::create($city);
+        foreach ($cities as $city) {
+            $this->cityRepository->createCity($city);
         }
     }
 }

@@ -3,11 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\WeatherInformationRequest;
-use App\Models\Weather;
-use Illuminate\Support\Carbon;
+use App\Repositories\WeatherRepository;
 
 class WeatherInformationController extends Controller
 {
+    private WeatherRepository $weatherRepository;
+
+    public function __construct() {
+        $this->weatherRepository = new WeatherRepository();
+    }
+
     /**
      * Handle the incoming request.
      *
@@ -16,13 +21,9 @@ class WeatherInformationController extends Controller
      */
     public function __invoke(WeatherInformationRequest $request)
     {
-        $weathers = Weather::whereHas('city', function ($query) use ($request) {
-            $query->where('name', $request->query->get('query'));
-        })
-            ->where('created_at', '>', Carbon::now()->subDays(1))
-            ->get();
-
-        return response($weathers);
+        return response(
+            $this->weatherRepository->getWheatersByCityName($request->query->get('query'))
+        );
     }
 
 }

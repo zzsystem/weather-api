@@ -2,20 +2,22 @@
 
 namespace App\Jobs;
 
-use App\Models\City;
-use App\Models\Weather;
+use App\Repositories\CityRepository;
+use App\Repositories\WeatherRepository;
+use App\Repositories\WeatherApiRepository;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Http;
 
 class WeatherJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    private CityRepository $cityRepository;
+    private WeatherRepository $weatherRepository;
+    private WeatherApiRepository $weatherApiRepository;
 
     /**
      * Create a new job instance.
@@ -23,7 +25,11 @@ class WeatherJob implements ShouldQueue
      * @return void
      */
     public function __construct()
-    {}
+    {
+        $this->cityRepository = new CityRepository();
+        $this->weatherRepository = new WeatherRepository();
+        $this->weatherApiRepository = new WeatherApiRepository();
+    }
 
     /**
      * Execute the job.
@@ -32,20 +38,13 @@ class WeatherJob implements ShouldQueue
      */
     public function handle()
     {
-        $cities = City::all();
+        $cities = $this->cityRepository->getAllCities();
 
         foreach($cities as $city) {
-            $response = Http::withUrlParameters([
-                'url' => env('OPEN_WEATHER_MAP_URL'),
-                'lon' => $city->longitude,
-                'lat' => $city->latitude,
-                'appId' => env('OPEN_WEATHER_MAP_TOKEN'),
-            ])->get('{+url}?lat={lat}&lon={lon}&appid={appId}&units=metric');
-
-            $result = json_decode($response->getBody()->getContents());
+            $result = $this->weatherApiRepository->getWeatherByCoordinates($city->longitude, $city->latitude);
 
             try {
-                Weather::create([
+                $this->weatherRepository->createWeather([
                     'city_id' => $city->id,
                     'name' => $result->weather[0]->main,
                     'longitude' => $result->coord->lon,
