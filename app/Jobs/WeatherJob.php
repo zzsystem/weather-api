@@ -40,22 +40,25 @@ class WeatherJob implements ShouldQueue
                 'lon' => $city->longitude,
                 'lat' => $city->latitude,
                 'appId' => env('OPEN_WEATHER_MAP_TOKEN'),
-            ])->get('{+url}?lat={lat}&lon={lon}&appid={appId}');
+            ])->get('{+url}?lat={lat}&lon={lon}&appid={appId}&units=metric');
 
             $result = json_decode($response->getBody()->getContents());
 
-            Weather::create([
-                'city_id' => $city->id,
-                'name' => $result->weather[0]->main,
-                'longitude' => $result->coord->lon,
-                'latitude' => $result->coord->lat,
-                'temperature' => $result->main->temp,
-                'pressure' => $result->main->pressure,
-                'humidity' => $result->main->humidity,
-                'min_temperature' => $result->main->temp_min,
-                'max_temperature' => $result->main->temp_max,
-                'time' => Carbon::now()->format('H:i:s'),
-            ]);
+            try {
+                Weather::create([
+                    'city_id' => $city->id,
+                    'name' => $result->weather[0]->main,
+                    'longitude' => $result->coord->lon,
+                    'latitude' => $result->coord->lat,
+                    'temperature' => $result->main->temp,
+                    'pressure' => $result->main->pressure,
+                    'humidity' => $result->main->humidity,
+                    'min_temperature' => $result->main->temp_min,
+                    'max_temperature' => $result->main->temp_max,
+                ]);
+            } catch(\PDOException $e) {
+                dd($e->getMessage());
+            }
         }
     }
 }
