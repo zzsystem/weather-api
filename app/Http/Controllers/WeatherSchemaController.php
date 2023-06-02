@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Weather;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 
 class WeatherSchemaController extends Controller
 {
@@ -15,6 +16,6 @@ class WeatherSchemaController extends Controller
      */
     public function __invoke(Request $request)
     {
-        return response(Weather::first()->attributesToArray());
+        return response(Schema::getColumnListing((new Weather())->getTable()));
     }
 }
