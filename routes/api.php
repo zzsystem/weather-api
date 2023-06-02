@@ -17,4 +17,4 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/schema', WeatherSchemaController::class);
-Route::post('/info', WeatherInformationController::class);
+Route::get('/info', WeatherInformationController::class);
