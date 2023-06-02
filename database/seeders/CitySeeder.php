@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\City;
 use Illuminate\Database\Seeder;
 
 class CitySeeder extends Seeder
@@ -14,6 +14,14 @@ class CitySeeder extends Seeder
      */
     public function run()
     {
-        //
+        $cities = [
+            ['name' => 'Kecskemét', 'latitude' => 46.906441, 'longitude' => 19.689720],
+            ['name' => 'Budapest', 'latitude' => 47.497913, 'longitude' => 19.040236],
+            ['name' => 'Szeged', 'latitude' => 46.253620, 'longitude' => 20.146130],
+        ];
+
+        foreach($cities as $city) {
+            City::create($city);
+        }
     }
 }
