@@ -17,7 +17,7 @@ class WeatherInformationController extends Controller
     public function __invoke(WeatherInformationRequest $request)
     {
         $weathers = Weather::whereHas('city', function ($query) use ($request) {
-            $query->where('name', $request->city);
+            $query->where('name', $request->query->get('query'));
         })
             ->where('created_at', '>', Carbon::now()->subDays(1))
             ->get();
